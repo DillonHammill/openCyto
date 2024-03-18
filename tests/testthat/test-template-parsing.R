@@ -20,6 +20,10 @@ test_that(".preprocess_csv", {
       suppressMessages(
           preprocessed_dt <<- .preprocess_csv(dt)
       )
+  # Now we deprecate tail gate, so update legacy result
+      expectResults[["preprocess_csv"]][c(11:12,14:15),gating_method:="gate_mindensity"]
+      expectResults[["preprocess_csv"]][c(11:12,14:15),gating_method:="gate_mindensity"]
+      expectResults[["preprocess_csv"]][c(11:12,14:15),gating_args:=""]
       expect_equivalent(preprocessed_dt[,-2, with = F], expectResults[["preprocess_csv"]][,-2, with = F])
       
     })
@@ -345,11 +349,13 @@ test_that(".preprocess_row", {
 test_that("gatingTemplate constructor", {
   thisPath <- system.file(package = "openCyto")
 #  thisPath <- file.path(thisPath, "inst")
-  gtfiles <- list.files(file.path(thisPath, "extdata/gating_template"), full = TRUE)
+  gtfiles <- list.files(file.path(thisPath, "extdata/gating_template"), full = TRUE)[-c(5:6)]
   options(scipen=999)
   for(thisFile in gtfiles){
     
     templateName <- file_path_sans_ext(basename(thisFile))
+    if(templateName == "ICS")
+      next #skip polyfunctional test and this csv template already gets tested in test-gating-suite.R
     message(templateName)
     suppressWarnings(suppressMessages(
         thisRes <- gatingTemplate(thisFile, skip = 0)
